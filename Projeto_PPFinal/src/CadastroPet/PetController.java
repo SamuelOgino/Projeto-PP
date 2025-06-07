@@ -60,25 +60,22 @@ public class PetController {
     private void carregarPetsDoArquivo() {
         listaDePets.clear();
         try (java.util.Scanner scanner = new java.util.Scanner(new java.io.File(caminhoArquivo))) {
-            scanner.nextLine(); // pula o cabeçalho
+            if (scanner.hasNextLine()) scanner.nextLine(); // pula o cabeçalho
             while (scanner.hasNextLine()) {
                 String linha = scanner.nextLine();
-
-                String[] partes = linha.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
                 
-                for (int i = 0; i < partes.length; i++) {
-                    partes[i] = partes[i].replace("\"", "").trim();
-                }
-                // Verifica se tem 6 partes antes de criar o Pet
-                if (partes.length == 6) {
-                    String nome = partes[0];
-                    String raca = partes[1];
-                    int idade = Integer.parseInt(partes[2]);
-                    String dono = partes[3];
-                    String vacinas = partes[4];
-                    String categoria = partes[5];
+                String[] partes = linha.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 
-                    Pet pet = new Pet(nome, raca, idade, dono, vacinas, categoria);
+                if (partes.length == 7) {
+                    int id = Integer.parseInt(partes[0]);
+                    String nome = partes[1];
+                    String raca = partes[2];
+                    int idade = Integer.parseInt(partes[3]);
+                    String dono = partes[4];
+                    String vacinas = partes[5];
+                    String categoria = partes[6];
+
+                    Pet pet = new Pet(id, nome, raca, idade, dono, vacinas, categoria);
                     listaDePets.add(pet);
                 }
             }
@@ -86,6 +83,7 @@ public class PetController {
             JOptionPane.showMessageDialog(null, "Erro ao carregar pets: " + e.getMessage());
         }
     }
+
 
     private void reescreverArquivo() {
         try (FileWriter writer = new FileWriter(caminhoArquivo)) {
@@ -149,7 +147,7 @@ public class PetController {
             java.io.File arquivo = new java.io.File(caminhoArquivo);
             if (!arquivo.exists()) {
                 FileWriter writer = new FileWriter(caminhoArquivo);
-                writer.write("Nome,Raça,Idade,Dono,Vacinas,Categoria\n");
+                writer.write("ID,Nome,Raça,Idade,Dono,Vacinas,Categoria\n");
                 writer.close();
             }
         } catch (IOException e) {
