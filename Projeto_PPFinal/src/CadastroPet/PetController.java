@@ -1,15 +1,13 @@
 package CadastroPet;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 
 public class PetController {
 
@@ -31,11 +29,7 @@ public class PetController {
             }
         });
 
-        this.view.getEditarButton().addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                editarPet(); // por enquanto só exibe mensagem
-            }
-        });
+        this.view.getEditarButton().addActionListener(e -> mostrarTabelaParaSelecao("Editar")); //****
 
         this.view.getVerPetsButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -43,11 +37,7 @@ public class PetController {
             }
         });
 
-        this.view.getRemoverButton().addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                removerPet();
-            }
-        });
+        this.view.getRemoverButton().addActionListener(e -> mostrarTabelaParaSelecao("Remover")); //****
 
         this.view.getAbrirCSVButton().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -126,6 +116,8 @@ public class PetController {
 
             salvarNoArquivo(novoPet);
             JOptionPane.showMessageDialog(null, "🐶 Pet cadastrado com sucesso!");
+            
+            view.limparCampos();
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(null, "⚠️ Idade deve ser um número inteiro.");
@@ -272,6 +264,77 @@ public class PetController {
             JOptionPane.showMessageDialog(null, "Pet removido com sucesso.");
         }
     }
+    
+    private void mostrarTabelaParaSelecao(String acao) {
+        carregarPetsDoArquivo();
+
+        String[] colunas = {"ID", "Nome", "Raça", "Idade", "Dono", "Vacinas", "Categoria"};
+        String[][] dados = new String[listaDePets.size()][7];
+
+        for (int i = 0; i < listaDePets.size(); i++) {
+            Pet p = listaDePets.get(i);
+            dados[i][0] = String.valueOf(p.getId());
+            dados[i][1] = p.getNome();
+            dados[i][2] = p.getRaca();
+            dados[i][3] = String.valueOf(p.getIdade());
+            dados[i][4] = p.getDono();
+            dados[i][5] = p.getVacinas();
+            dados[i][6] = p.getCategoria();
+        }
+
+        JTable tabela = new JTable(dados, colunas);
+        JScrollPane scrollPane = new JScrollPane(tabela);
+        tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JFrame frame = new JFrame("Selecionar Pet para " + acao);
+        frame.setSize(700, 300);
+        frame.setLocationRelativeTo(null);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        JButton confirmar = new JButton(acao);
+        confirmar.addActionListener(e -> {
+            int row = tabela.getSelectedRow();
+            if (row != -1) {
+                int idSelecionado = Integer.parseInt((String) tabela.getValueAt(row, 0));
+                Pet selecionado = listaDePets.stream()
+                    .filter(p -> p.getId() == idSelecionado)
+                    .findFirst()
+                    .orElse(null);
+
+                if (selecionado != null) {
+                    if (acao.equals("Remover")) {
+                        int confirm = JOptionPane.showConfirmDialog(frame,
+                            "Remover o pet " + selecionado.getNome() + "?",
+                            "Confirmação", JOptionPane.YES_NO_OPTION);
+
+                        if (confirm == JOptionPane.YES_OPTION) {
+                            listaDePets.remove(selecionado);
+                            reescreverArquivo();
+                            carregarPetsDoArquivo();
+                            JOptionPane.showMessageDialog(frame, "Pet removido com sucesso.");
+                            frame.dispose();
+                        }
+                    } else if (acao.equals("Editar")) {
+                    	view.exibirJanelaEdicao(selecionado, pet -> atualizarPet(pet));
+                    	frame.dispose();
+
+                    }
+                }
+            }
+        });
+
+        JPanel panel = new JPanel();
+        panel.add(confirmar);
+        frame.add(panel, BorderLayout.SOUTH);
+        frame.setVisible(true);
+    }
+    
+    public void atualizarPet(Pet petAtualizado) {
+        reescreverArquivo(); // Sobrescreve o CSV com os dados atualizados da lista
+        carregarPetsDoArquivo(); // recarrega a lista a partir do arquivo atualizado
+
+    }
+
 
     private void abrirCSV() {
         try {

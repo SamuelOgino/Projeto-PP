@@ -2,6 +2,7 @@ package CadastroPet;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.Consumer;
 
 public class PetView extends JFrame {
 
@@ -188,12 +189,80 @@ public String getCategoria() {
     return (String) categoriaCombo.getSelectedItem();
 }
 
+public void preencherCampos(Pet pet) {
+    nomeField.setText(pet.getNome());
+    racaField.setText(pet.getRaca());
+    idadeField.setText(String.valueOf(pet.getIdade()));
+    donoField.setText(pet.getDono());
+    // Aqui você pode adicionar lógica para marcar os checkboxes com base no texto de vacinas
+    categoriaCombo.setSelectedItem(pet.getCategoria());
+}
+
+public void limparCampos() {
+    nomeField.setText("");
+    racaField.setText("");
+    idadeField.setText("");
+    donoField.setText("");
+    categoriaOutraField.setText("");
+    categoriaCombo.setSelectedIndex(0); // volta para o primeiro item da lista
+
+    vacinaRaiva.setSelected(false);
+    vacinaPolivalente.setSelected(false);
+    vacinaVermifugo.setSelected(false);
+    vacinaOutra.setSelected(false);
+}
 
     public JButton getSalvarButton() { return salvarButton; }
     public JButton getEditarButton() { return editarButton; }
     public JButton getVerPetsButton() { return verPetsButton; }
     public JButton getRemoverButton() { return removerButton; }
     public JButton getAbrirCSVButton() { return abrirCSVButton; }
+
+    public void exibirJanelaEdicao(Pet pet, Consumer<Pet> onSalvar) {
+        JFrame frame = new JFrame("Editar Pet: " + pet.getNome());
+        frame.setSize(400, 400);
+        frame.setLayout(new GridLayout(8, 2, 5, 5));
+        frame.setLocationRelativeTo(null);
+
+        JTextField idField = new JTextField(String.valueOf(pet.getId()));
+        idField.setEditable(false);
+
+        JTextField nomeField = new JTextField(pet.getNome());
+        JTextField racaField = new JTextField(pet.getRaca());
+        JTextField idadeField = new JTextField(String.valueOf(pet.getIdade()));
+        JTextField donoField = new JTextField(pet.getDono());
+        JTextField vacinasField = new JTextField(pet.getVacinas());
+        JTextField categoriaField = new JTextField(pet.getCategoria());
+
+        frame.add(new JLabel("ID:")); frame.add(idField);
+        frame.add(new JLabel("Nome:")); frame.add(nomeField);
+        frame.add(new JLabel("Raça:")); frame.add(racaField);
+        frame.add(new JLabel("Idade:")); frame.add(idadeField);
+        frame.add(new JLabel("Dono:")); frame.add(donoField);
+        frame.add(new JLabel("Vacinas:")); frame.add(vacinasField);
+        frame.add(new JLabel("Categoria:")); frame.add(categoriaField);
+
+        JButton salvar = new JButton("Salvar Alterações");
+        salvar.addActionListener(e -> {
+            try {
+                pet.setNome(nomeField.getText().trim());
+                pet.setRaca(racaField.getText().trim());
+                pet.setIdade(Integer.parseInt(idadeField.getText().trim()));
+                pet.setDono(donoField.getText().trim());
+                pet.setVacinas(vacinasField.getText().trim());
+                pet.setCategoria(categoriaField.getText().trim());
+
+                onSalvar.accept(pet);
+                JOptionPane.showMessageDialog(frame, "Pet atualizado com sucesso!");
+                frame.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Erro: " + ex.getMessage());
+            }
+        });
+
+        frame.add(new JLabel()); frame.add(salvar);
+        frame.setVisible(true);
+    }
 
 
     public static void main(String[] args) {
