@@ -2,7 +2,7 @@ package CadastroPet;
 
 public class Pet {
 
-    private static int proximoId = 1; // contador de IDs
+    private static int proximoId = 1; // contador de IDs pros pets cadastrados
 
     private int id;
     private String nome;
@@ -14,7 +14,7 @@ public class Pet {
 
     // Construtor para novos pets
     public Pet(String nome, String raca, int idade, String dono, String vacinas, String categoria) {
-        this.id = proximoId++;
+        this.id = proximoId++; //id gerado automaticamente
         this.nome = nome;
         this.raca = raca;
         this.idade = idade;
@@ -23,7 +23,7 @@ public class Pet {
         this.categoria = categoria;
     }
 
-    // Construtor para carregar do arquivo (com ID fixo)
+    // Construtor para carregar do arquivo (que já tem id)
     public Pet(int id, String nome, String raca, int idade, String dono, String vacinas, String categoria) {
         this.id = id;
         this.nome = nome;
@@ -33,13 +33,13 @@ public class Pet {
         this.vacinas = vacinas;
         this.categoria = categoria;
 
-        // Atualiza o contador se necessário
+        // Atualiza o contador se necessário e garante q o id não repita
         if (id >= proximoId) {
             proximoId = id + 1;
         }
     }
 
-    // Getters
+    // Getters e setters para acessar e alterar os atributos dos pets
     public int getId() {
         return id;
     }
@@ -93,10 +93,12 @@ public class Pet {
         this.categoria = categoria;
     }
 
+    // Transforma os dados do pet em uma linha de texto pro arquivo CSV
     public String toCSV() {
-        return id + "," + nome + "," + raca + "," + idade + "," + dono + ",\"" + vacinas + "\"," + categoria;
+    	// Essa parte é um tratamento do campo vacinas, que estava ficando com aspas duplicadas
+        String vacinasTratadas = "\"" + vacinas.replace("\"", "") + "\""; 
+        return id + "," + nome + "," + raca + "," + idade + "," + dono + "," + vacinasTratadas + "," + categoria;
     }
-
 
     @Override
     public String toString() {

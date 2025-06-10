@@ -224,8 +224,8 @@ public void limparCampos() {
         frame.setLayout(new GridLayout(8, 2, 5, 5));
         frame.setLocationRelativeTo(null);
 
-        JTextField idField = new JTextField(String.valueOf(pet.getId()));
-        idField.setEditable(false);
+        frame.add(new JLabel("ID:"));
+        frame.add(new JLabel(String.valueOf(pet.getId())));
 
         JTextField nomeField = new JTextField(pet.getNome());
         JTextField racaField = new JTextField(pet.getRaca());
@@ -234,7 +234,6 @@ public void limparCampos() {
         JTextField vacinasField = new JTextField(pet.getVacinas());
         JTextField categoriaField = new JTextField(pet.getCategoria());
 
-        frame.add(new JLabel("ID:")); frame.add(idField);
         frame.add(new JLabel("Nome:")); frame.add(nomeField);
         frame.add(new JLabel("Raça:")); frame.add(racaField);
         frame.add(new JLabel("Idade:")); frame.add(idadeField);
